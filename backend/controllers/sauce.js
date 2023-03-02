@@ -1,13 +1,9 @@
-//importation du modele Recette
+// On importe le modèle Sauce
 const Sauce = require('../models/Sauce');
-
-//module fs pour la gestion des fichiers
+// On inclut le module fs de Node js pour la gestion des fichiers
 const fs = require('fs');
 
-
-
-
-//contrôleur pour la création d'une sauce de sauce
+// Controleur pour la création d'une sauce
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
@@ -17,25 +13,23 @@ exports.createSauce = (req, res, next) => {
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
-  
-    sauce.save()
-    //enregistre Sauce dans la base de données, elle renvoie une promise
-    .then(() => res.status(201).json({message: 'Sauce enregistrée !'}))
-    .catch(error => res.status(400).json( { error }))
+    sauce.save() //on utilise la méthode save pour enregistrer Sauce dans la base de données, elle renvoie une promise
+        .then(() => res.status(201).json({ message: 'Sauce enregistrée !'})) // on renvoie une réponse de réussite
+        .catch(error => res.status(400).json({ error })); // on renvoie la réponse d'erreur générée automatiquement par Mongoose et un code erreur 400
 };
 
-//contrôleur modification sauce
+// Controleur pour la modification d'une sauce
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
-
+  
     delete sauceObject._userId;
     Sauce.findOne({_id: req.params.id})
         .then((sauce) => {
             if (sauce.userId != req.auth.userId) {
-                res.status(401).json({ message : 'Not authorized'});
+                res.status(403).json({ message : 'Requête non autorisée !'});
             } else {
                 Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
                 .then(() => res.status(200).json({message : 'Sauce modifiée!'}))
@@ -50,36 +44,36 @@ exports.modifySauce = (req, res, next) => {
 // Controleur pour la suppression d'une sauce
 exports.deleteSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id})
-        .then(sauce => {
-            if (sauce.userId != req.auth.userId) {
-                res.status(401).json({message: 'Not authorized'});
-            } else {
-                const filename = sauce.imageUrl.split('/images/')[1];
-                fs.unlink(`images/${filename}`, () => {
-                    Sauce.deleteOne({_id: req.params.id})
-                        .then(() => { res.status(200).json({message: 'Sauce supprimée !'})})
-                        .catch(error => res.status(401).json({ error }));
-                });
-            }
-        })
-        .catch( error => {
-            res.status(500).json({ error });
-        });
+       .then(sauce => {
+           if (sauce.userId != req.auth.userId) {
+               res.status(403).json({message: 'Requête non autorisée !'});
+           } else {
+               const filename = sauce.imageUrl.split('/images/')[1];
+               // On supprime le fichier image de la sauce
+               fs.unlink(`images/${filename}`, () => {
+                   Sauce.deleteOne({_id: req.params.id})
+                       .then(() => { res.status(200).json({message: 'Sauce supprimée !'})})
+                       .catch(error => res.status(401).json({ error }));
+               });
+           }
+       })
+       .catch( error => {
+           res.status(500).json({ error });
+       });
 };
 
 // Controleur pour l'affichage d'une sauce
-exports.getOneSauce = (req, res, next) => {
+exports.getOneSauce = (req, res, next) =>{
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => res.status(200).json(sauce))
-        .catch(error => res.status(404).json({ error }));
+        .catch(error => res.status(400).json({ error }));
 };
 
 // Controleur pour l'affichage de toutes les sauces
 exports.getAllSauces = (req, res, next) => {
-    Sauce.find()
-      .then(sauces => res.status(200).json(sauces))
-      .catch(error => res.status(400).json({ error }));
-  
+    Sauce.find() // on utilise la méthode find et on renvoie un tableau contenant les Sauces de la BDD
+        .then(sauces => res.status(200).json(sauces))
+        .catch(error => res.status(400).json({ error }));
 };
 
 // Controleur pour gérer les likes et dislikes
