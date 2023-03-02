@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const mailValidator = require("email-validator");
 const passwordValidator = require("password-validator");
 // On importe le modèle Utilisateur
-const User = require('../models/User');
+const User = require('../models/user');
 
 // Création d'un schéma
 const schema = new passwordValidator();
@@ -30,11 +30,11 @@ exports.signup = (req, res, next) => {
             message: "E-mail ou mot de passe manquant."
         })
     }
-    if (!mailValidator.validate(email)) {
+        if (!mailValidator.validate(email)) {
         return res.status(400).send({
             message: "L'adresse mail n'est pas valide !"
         })
-    } else if (!schema.validate(password)) {
+    }    else if (!schema.validate(password)) {
         return res.status(400).send({
             message: "Le mot de passe n'est pas valide ! Il doit contenir au moins 8 caractères, au  moins 2 chiffres, des majuscules et des minuscules et ne doit pas contenir d'espace."
         })
@@ -46,7 +46,7 @@ exports.signup = (req, res, next) => {
                 // on cré un nouveau user
                 const user = new User({
                     email: email,
-                    password: hash
+                    password: hash,
                 });
                 // et on le sauvegarde dans la base de données
                 user.save()
