@@ -24,16 +24,18 @@ schema
 exports.signup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    
+    //vérification si un des deux champs manquant => message
     if (!email || !password){
         return res.status(400).send({
             message: "E-mail ou mot de passe manquant."
         })
     }
+    //verification par mail-validator de la structure du mail
         if (!mailValidator.validate(email)) {
         return res.status(400).send({
             message: "L'adresse mail n'est pas valide !"
         })
+        //verification de la structure du mot de passe par password-validator
     }    else if (!schema.validate(password)) {
         return res.status(400).send({
             message: "Le mot de passe n'est pas valide ! Il doit contenir au moins 8 caractères, au  moins 2 chiffres, des majuscules et des minuscules et ne doit pas contenir d'espace."

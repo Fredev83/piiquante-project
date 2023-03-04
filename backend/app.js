@@ -24,11 +24,10 @@ mongoose.connect('mongodb+srv://Fredev:Doudoune22@cluster0.ntcjkvw.mongodb.net/?
 // La variable d'application stocke le module express
 const app = express();
 app.use(express.json());
-app.use(
-    helmet({
-    //Seules les demandes provenant du même site peuvent lire la ressource
-    crossOriginResourcePolicy: { policy: "same-site" },
-    })
+app.use(helmet({
+//Seules les demandes provenant du même site peuvent lire la ressource
+crossOriginResourcePolicy: { policy: "same-site" },
+})
 );
 
 // Création d'un limiteur en appelant la fonction rateLimit avec les options : 
@@ -50,9 +49,6 @@ app.use((req, res, next) => {
     next();
 });
 
-/*app.use((req, res) => {
-    res.json({ message: 'Votre requête a bien été reçue !' }); 
-});*/
 
 // Routes attendues par le frontend
 app.use('/api/auth', userRoutes);
