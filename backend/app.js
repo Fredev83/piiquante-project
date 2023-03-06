@@ -15,11 +15,15 @@ const sauceRoutes = require('./routes/sauce');
 const path = require('path');
 
 // Configuration de la base de données mongoDB avec des variables d'environnement
-mongoose.connect('mongodb+srv://Fredev:Doudoune22@cluster0.ntcjkvw.mongodb.net/?retryWrites=true&w=majority',
-  { useNewUrlParser: true,
-    useUnifiedTopology: true })
-    .then(() => console.log('Connexion à MongoDB réussie !'))
-    .catch(() => console.log('Connexion à MongoDB échouée !'));
+mongoose.set("strictQuery", false);
+
+mongoose.connect(process.env.MONGODB_URL);
+
+  /*  mongoose.connect(process.env.MONGODB_URL,
+        { useNewUrlParser: true,
+          useUnifiedTopology: true })
+          .then(() => console.log('Connexion à MongoDB réussie !'))
+          .catch(() => console.log('Connexion à MongoDB échouée !'));*/
 
 // La variable d'application stocke le module express
 const app = express();
