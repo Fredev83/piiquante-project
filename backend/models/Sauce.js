@@ -1,5 +1,8 @@
+//importation du package mongoose pour la base de données
 const mongoose = require('mongoose');
 
+//définition du schéma pour mongoose sous forme JSON
+//en spécifiant d'une string, number, array...
 const sauceSchema = mongoose.Schema({
   userId: { type: String, required: true},
   name: { type: String, required: true},
@@ -15,4 +18,5 @@ const sauceSchema = mongoose.Schema({
     
 });
 
+//on exporte le model de sauce (ici dans controllers/sauce.js)
 module.exports = mongoose.model('Sauce', sauceSchema);

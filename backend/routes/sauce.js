@@ -1,9 +1,14 @@
+//importation du package express
 const express = require('express');
+//definition de la fonction express.Router utilisée pour créer un objet routeur pour gérer les requêtes
 const router = express.Router();
+//définition du chemin authentification pour le routeur
 const auth = require('../middleware/auth');
+//définition du chemin multer pour le routeur
 const multer = require('../middleware/multer-config');
-
+//définition du chemin sauce pour le routeur
 const sauceCtrl = require('../controllers/sauce');
+
 // Requête POST
 router.post('/', auth, multer, sauceCtrl.createSauce);
 // Requête PUT | Mise à jour / modification d'une sauce exitante

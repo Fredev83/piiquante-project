@@ -2,6 +2,8 @@
 const bcrypt = require('bcrypt');
 // On importe le package Jsonwebtoken
 const jwt = require('jsonwebtoken');
+// Dotenv sert à importer un fichier de variables d'environnement.
+const dotenv = require("dotenv").config();
 const mailValidator = require("email-validator");
 const passwordValidator = require("password-validator");
 // On importe le modèle Utilisateur
@@ -21,6 +23,7 @@ schema
 
 
 // Controleur pour la création d'un compte utilisateur
+// enregistrement de nouveaux utilisateurs grace a signup
 exports.signup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -62,26 +65,42 @@ exports.signup = (req, res, next) => {
 
 // Contrôleur pour la connexion à un compte utilisateur
 exports.login = (req, res, next) => {
+     // on trouve l'adresse email qui est rentrée par un utilisateur (requete)
     User.findOne({ email: req.body.email })
+    // pour un utilisateur
         .then(user => {
+            // si la requete email ne correspond pas à un utisateur
             if (!user) {
+                // status 401 Unauthorized et message en json
                 return res.status(401).json({ message: 'Utilisateur non trouvé !' });
             }
+             // si c'est ok bcrypt compare le mot de passe de user avec celui rentré par l'utilisateur dans sa requete
             bcrypt.compare(req.body.password, user.password)
+                // à la validation
                 .then(valid => {
+                    // si ce n'est pas valide
                     if (!valid) {
+                        // retourne un status 401 Unauthorized et un message en json
                         return res.status(401).json({ message: 'Mot de passe incorrect !' });
                     }
+                    // si c'est ok status 200 et renvoi un objet json
                     res.status(200).json({
+                        // renvoi l'user id
                         userId: user._id,
+                        // renvoi un token traité/encodé
                         token: jwt.sign(
+                            // le token aura le user id identique à la requete d'authentification
                             { userId: user._id },
-                            'RANDOM_TOKEN_SECRET',
+                            // clef secrette pour l'encodage
+                            process.env.RANDOM_TOKEN_SECRET,
+                            // durée de vie du token
                             { expiresIn: '24h' }
                         )
                     });
                 })
+                // erreur status 500 Internal Server Error et message en json
                 .catch(error => res.status(500).json({ error }));
         })
+        // erreur status 500 Internal Server Error et message en json
         .catch(error => res.status(500).json({ error }));
 };
